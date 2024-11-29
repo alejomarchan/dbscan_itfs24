@@ -1,118 +1,89 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es-ES">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mapa de Zonas</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
-    <style>
-        #map {
-            height: 500px;
-            width: 100%;
-        }
-        .legend {
-            background-color: white;
-            padding: 10px;
-            border: 2px solid black;
-            position: absolute;
-            top: 20px; /* Posicionada más arriba */
-            right: 20px;
-            z-index: 1000;
-        }
-        .legend-item {
-            display: flex;
-            align-items: center;
-            margin-bottom: 5px;
-        }
-        .color-box {
-            width: 20px;
-            height: 20px;
-            margin-right: 10px;
-        }
-        h1 {
-            display: inline-block;
-        }
-    </style>
+    <meta name="description" content="Plataforma para visualizar zonas de éxito comercial utilizando mapas interactivos.">
+    <title>Zonas de Éxito Comercial</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css">
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
-
-    <h1>Selecciona un Rubro para Ver Zonas de Éxito</h1>
-    <div class="legend" id="legend">
-        <p><strong>Colores:</strong></p>
-        <div class="legend-item">
-            <div class="color-box" style="background-color: red;"></div>
-            Baja probabilidad de éxito
-        </div>
-        <div class="legend-item">
-            <div class="color-box" style="background-color: blue;"></div>
-            Probabilidad media
-        </div>
-        <div class="legend-item">
-            <div class="color-box" style="background-color: green;"></div>
-            Alta probabilidad de éxito
-        </div>
-    </div>
-
-    <label for="rubro">Rubro: </label>
-    <select id="rubro" name="rubro" onchange="actualizarMapa()">
-        <option value="">--Selecciona un Rubro--</option>
-        {% for rubro in rubros %}
-            <option value="{{ rubro }}">{{ rubro }}</option>
-        {% endfor %}
-    </select>
-
-    <div id="map"></div>
-
-    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-    <script>
-        // Inicializar el mapa vacío
-        var map = L.map('map').setView([-34.6037, -58.3816], 12);
-
-        // Añadir un tile layer
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19
-        }).addTo(map);
-
-        // Variable para almacenar las zonas del mapa
-        var zonas = [];
-
-        // Función para actualizar el mapa con las zonas del rubro seleccionado
-        function actualizarMapa() {
-            var rubroSeleccionado = document.getElementById('rubro').value;
-
-            // Limpiar las zonas anteriores
-            zonas.forEach(function(zona) {
-                map.removeLayer(zona);
-            });
-            zonas = [];
-
-            // Si no hay rubro seleccionado, no hacer nada
-            if (!rubroSeleccionado) {
-                return;
-            }
-
-            // Solicitar las zonas al servidor
-            fetch('/get_zonas?rubro=' + encodeURIComponent(rubroSeleccionado))
-                .then(response => response.json())
-                .then(data => {
-                    console.log("Datos recibidos:", data.zonas); // Depuración para verificar los datos
-                    data.zonas.forEach(function(zona) {
-                        if (zona.polygon.length > 0) {
-                            // Crear un polígono para representar la zona completa
-                            var polygon = L.polygon(zona.polygon, { 
-                                color: zona.color,       // Color del borde
-                                fillColor: zona.color,   // Color del relleno
-                                fillOpacity: 0.15,       // Transparencia del relleno
-                                weight: 1,               // Grosor del borde
-                                opacity: 0.8             // Transparencia del borde
-                            }).addTo(map);
-
-                            zonas.push(polygon);
-                        }
-                    });
-                })
-                .catch(error => console.error("Error al cargar zonas:", error));
-        }
-    </script>
+    <header>
+        <h1>Zonas de Éxito Comercial</h1>
+    </header>
+    <main class="content">
+        <!-- Controles -->
+        <section class="controls">
+            <!-- Modo de Visualización -->
+            <div class="toggle-buttons" aria-label="Modo de Visualización">
+                <label>
+                    <input type="radio" name="modo" value="rubro" onclick="cambiarVisualizacion('rubro')" checked>
+                    <span>Por Rubro</span>
+                </label>
+                <label>
+                    <input type="radio" name="modo" value="zona" onclick="cambiarVisualizacion('zona')">
+                    <span>Por Zona</span>
+                </label>
+                <label>
+                    <input type="radio" name="modo" value="cluster" onclick="cambiarVisualizacion('cluster')">
+                    <span>Por Clúster</span>
+                </label>
+            </div>
+            
+            <!-- Selector de Rubros -->
+            <div id="controls-rubro" style="display: block;">
+                <label for="rubro">Selecciona un Rubro:</label>
+                <select id="rubro" name="rubro" onchange="actualizarMapa()" aria-label="Selecciona un Rubro">
+                    <option value="">--Selecciona un Rubro--</option>
+                    {% for rubro in rubros %}
+                        <option value="{{ rubro }}">{{ rubro }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+    
+            <!-- Selector de Zonas -->
+            <div id="controls-zona" style="display: none;">
+                <label for="zona">Selecciona una Zona:</label>
+                <select id="zona" name="zona" onchange="mostrarRubrosPorZona()" aria-label="Selecciona una Zona">
+                    <option value="">--Selecciona una Zona--</option>
+                    {% for zona_id in zonas_ids %}
+                        <option value="{{ zona_id }}">Zona {{ zona_id }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </section>
+    
+        <!-- Contenedor del Mapa -->
+        <section id="map" aria-label="Mapa Interactivo"></section>
+    
+        <!-- Leyenda -->
+        <aside class="legend" id="legend" style="display: block;">
+            <p><strong>Colores:</strong></p>
+            <div class="legend-item">
+                <div class="color-box" style="background-color: red;"></div>
+                <span>Baja probabilidad de éxito</span>
+            </div>
+            <div class="legend-item">
+                <div class="color-box" style="background-color: blue;"></div>
+                <span>Probabilidad media</span>
+            </div>
+            <div class="legend-item">
+                <div class="color-box" style="background-color: green;"></div>
+                <span>Alta probabilidad de éxito</span>
+            </div>
+        </aside>
+    </main>    
+    <footer>
+        <p>© 2024 Zonas de Éxito Comercial | Desarrollado por Alejandro Marchán</p>
+    </footer>
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" defer></script>
+    <!-- Custom Scripts -->
+    <script src="{{ url_for('static', filename='scripts.js') }}" defer></script>
 </body>
 </html>
