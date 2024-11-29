@@ -1,0 +1,185 @@
+/* General Styles */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Poppins', sans-serif;
+    background-color: #f4f4f9; /* Fondo gris claro */
+    color: #333; /* Texto oscuro para buena legibilidad */
+}
+
+/* Header Styling */
+header {
+    background: linear-gradient(to right, #007BFF, #6c63ff);
+    padding: 20px;
+    text-align: center;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 2rem;
+    color: white;
+}
+
+/* Main Content Styling */
+.content {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto; /* Centra el contenido */
+}
+
+/* Controls Styling */
+.controls {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between; /* Asegura espaciado uniforme */
+    align-items: center;
+    gap: 15px; /* Espaciado entre elementos */
+    margin-bottom: 20px;
+}
+
+.controls > div {
+    flex: 1; /* Asegura que cada elemento tenga el mismo ancho */
+    min-width: 200px; /* Evita que los elementos se reduzcan demasiado */
+}
+
+#controls-rubro,
+#controls-zona,
+#search-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+#search-container input {
+    flex: 1;
+}
+
+
+/* Botones de Opción */
+.toggle-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px; /* Espaciado entre botones */
+    margin-bottom: 10px;
+}
+
+.toggle-buttons label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: bold;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.toggle-buttons input[type="radio"] {
+    accent-color: #007BFF; /* Color personalizado para los botones de opción */
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
+/* Select Styling */
+select,
+#direccion {
+    padding: 10px;
+    border: 2px solid #6c63ff;
+    border-radius: 5px;
+    font-size: 1rem;
+    width: 100%;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+select:focus,
+#direccion:focus {
+    border-color: #007BFF;
+    outline: none;
+}
+
+#suggestions li:hover {
+    background-color: #f0f0f0;
+}
+#direccion {
+    position: relative;
+}
+
+
+/* Map Container */
+#map {
+    height: 70vh; /* Ajusta la altura dinámicamente */
+    width: 100%;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Legend Styling */
+.legend {
+    background-color: rgba(255, 255, 255, 0.95);
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 15px;
+    position: absolute;
+    bottom: 20px; /* Mueve la leyenda a la esquina inferior derecha */
+    right: 20px;
+    z-index: 1000;
+    font-size: 0.9rem;
+    max-width: 200px; /* Limita el ancho */
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.color-box {
+    width: 20px;
+    height: 20px;
+    border: 1px solid #333;
+    margin-right: 10px;
+    border-radius: 3px;
+}
+
+/* Footer Styling */
+footer {
+    background-color: #007BFF;
+    color: white;
+    text-align: center;
+    padding: 10px;
+    font-size: 0.9rem;
+}
+
+footer p {
+    margin: 0;
+}
+
+/* Responsiveness - Media Queries */
+@media (min-width: 768px) {
+    .controls {
+        flex-wrap: nowrap; /* Los elementos estarán en una sola fila */
+        justify-content: space-around;
+    }
+}
+
+@media (max-width: 768px) {
+    header h1 {
+        font-size: 1.5rem;
+    }
+
+    .controls {
+        flex-direction: column;
+    }
+
+    .legend {
+        font-size: 0.8rem;
+        right: 10px; /* Ajusta la posición de la leyenda en pantallas pequeñas */
+        bottom: 10px;
+        padding: 10px;
+    }
+
+    #map {
+        height: 60vh;
+    }
+}
