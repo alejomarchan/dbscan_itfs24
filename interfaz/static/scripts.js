@@ -39,6 +39,9 @@ function cambiarVisualizacion(opcion) {
     const rubroControl = document.getElementById("controls-rubro");
     const zonaControl = document.getElementById("controls-zona");
     const legend = document.getElementById("legend");
+    
+    limpiarMapa();                       // Limpia el mapa
+    map.setView([-34.6037, -58.3816], 12);
 
     if (opcion === "rubro") {
         rubroControl.style.display = "block"; // Muestra el selector de rubros
@@ -48,7 +51,7 @@ function cambiarVisualizacion(opcion) {
     } else if (opcion === "zona") {
         rubroControl.style.display = "none"; // Oculta el selector de rubros
         zonaControl.style.display = "block"; // Muestra el selector de zonas
-        legend.style.display = "block";      // Muestra la leyenda
+        legend.style.display = "none";      // Muestra la leyenda
         limpiarMapa();                        // Limpia el mapa
     } else if (opcion === "cluster") {
         rubroControl.style.display = "none"; // Oculta el selector de rubros
@@ -107,8 +110,6 @@ function agregarLeyenda() {
 agregarLeyenda();
 
 
-
-
 function resaltarCluster(clusterId) {
     limpiarMapa(); // Limpia el mapa para resaltar solo el clúster seleccionado
 
@@ -154,77 +155,12 @@ function resaltarCluster(clusterId) {
 }
 
 
-// Fetch suggestions for the autocomplete
-function autocompletarDireccion() {
-    const direccion = document.getElementById("direccion").value.trim();
-
-    if (!direccion) {
-        cerrarSugerencias();
-        return;
-    }
-
-    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(direccion)}&format=json&addressdetails=1&limit=5&countrycodes=ar&viewbox=-58.5317,-34.5261,-58.3358,-34.6755&bounded=1`;
-
-    fetch(url)
-        .then(response => response.json())
-        .then(data => {
-            cerrarSugerencias(); // Close previous suggestions
-            const suggestions = document.createElement("ul");
-            suggestions.id = "suggestions";
-            suggestions.style.position = "absolute";
-            suggestions.style.backgroundColor = "white";
-            suggestions.style.border = "1px solid #ccc";
-            suggestions.style.padding = "5px";
-            suggestions.style.width = "100%";
-            suggestions.style.zIndex = "1000";
-
-            data.forEach(item => {
-                const suggestion = document.createElement("li");
-                suggestion.style.cursor = "pointer";
-                suggestion.style.padding = "5px";
-                suggestion.innerText = item.display_name;
-
-                suggestion.addEventListener("click", () => {
-                    document.getElementById("direccion").value = item.display_name;
-                    buscarDireccionSeleccionada(item.lat, item.lon);
-                    cerrarSugerencias();
-                });
-
-                suggestions.appendChild(suggestion);
-            });
-
-            document.getElementById("search-container").appendChild(suggestions);
-        })
-        .catch(error => console.error("Error al obtener sugerencias:", error));
-}
-
 // Close suggestions list
 function cerrarSugerencias() {
     const suggestions = document.getElementById("suggestions");
     if (suggestions) {
         suggestions.remove();
     }
-}
-
-// Search and highlight the zone for the selected address
-function buscarDireccionSeleccionada(lat, lon) {
-    limpiarMapa(); // Clear the map
-    cerrarPopup(); // Close any popups
-    map.setView([lat, lon], 14); // Center map on the address
-
-    const marcador = L.marker([lat, lon]).addTo(results);
-
-    fetch(`/buscar_zona?lat=${lat}&lon=${lon}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.error) {
-                alert(data.error);
-            } else {
-                console.log("Zona encontrada:", data.zona_id);
-                mostrarRubrosPorZona(data.zona_id); // Highlight zone and show rubros
-            }
-        })
-        .catch(error => console.error("Error al buscar la zona:", error));
 }
 
 // Close the popup
