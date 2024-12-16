@@ -44,7 +44,7 @@ def index():
         rubros.sort()  # Ordenar alfabéticamente
 
         # Obtener los IDs únicos de las zonas (clusters)
-        zonas_ids = df['cluster'].dropna().unique().tolist()
+        zonas_ids = df['MOC_ZONAS_ID'].dropna().unique().tolist()
         zonas_ids.sort()  # Ordenar los IDs de las zonas
 
         return render_template('index.html', rubros=rubros, zonas_ids=zonas_ids)
@@ -142,7 +142,7 @@ def get_rubros_por_zona():
         print("Zona ID convertido a entero:", zona_id)
 
         # Filtrar el DataFrame para encontrar la zona
-        df_filtered = df[df['cluster'] == zona_id]
+        df_filtered = df[df['MOC_ZONAS_ID'] == zona_id]
         if df_filtered.empty:
             return jsonify({'error': 'Zona no encontrada. Verifica la selección.'}), 404
 
@@ -239,6 +239,7 @@ def generar_puntos_aleatorios_en_poligono(poligono, num_puntos):
         if poligono.contains(random_point):
             puntos.append(random_point)
     return puntos
+
 
 if __name__ == '__main__':
     app.run(debug=True)
