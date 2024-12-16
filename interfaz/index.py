@@ -1,3 +1,4 @@
+
 from flask import Flask, request, render_template, jsonify
 from flask_cors import CORS
 import joblib
@@ -86,19 +87,25 @@ def get_zonas():
         df_filtered['cluster'] = clustering.labels_
 
         # Calcular percentiles para determinar colores
+        q25 = df_filtered['probabilidad_exito'].quantile(0.25)  # Percentil 25%
         q50 = df_filtered['probabilidad_exito'].quantile(0.5)
         q75 = df_filtered['probabilidad_exito'].quantile(0.75)
+        iqr = q75 - q25  # Rango intercuartílico
+
+        # Definir límites para las zonas
+        low_limit = q25 - (1.5 * iqr)  # Valores muy bajos
+        high_limit = q75 + (1.5 * iqr)  # Valores muy altos
 
         zonas = []
         for _, row in df_filtered.iterrows():
-            if row['cluster'] == -1:
-                color = 'gray'
-            elif row['probabilidad_exito'] < q50:
+            if row['probabilidad_exito'] < q25:
                 color = 'red'
+            elif q25 <= row['probabilidad_exito'] < q50:
+                color = 'orange'
             elif q50 <= row['probabilidad_exito'] < q75:
                 color = 'blue'
             else:
-                color = 'green'
+                color = 'DarkGreen'
 
             # Extraer las coordenadas del polígono
             polygon = row['geometry']
@@ -232,10 +239,6 @@ def generar_puntos_aleatorios_en_poligono(poligono, num_puntos):
         if poligono.contains(random_point):
             puntos.append(random_point)
     return puntos
-
-
-
-
 
 if __name__ == '__main__':
     app.run(debug=True)
